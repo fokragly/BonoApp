@@ -2,6 +2,5 @@
 builder = "DOCKERFILE"
 
 [deploy]
-healthcheckTimeout = 30
 healthcheckPath = "/health"
-healthcheckTimeout = 10
+healthcheckTimeout = 30
