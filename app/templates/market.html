@@ -1,33 +1,165 @@
 {% extends "base.html" %}
 {% block content %}
-<h2 style="margin-bottom:20px">Mercado de Bonos</h2>
 
-{% if error %}
-<div class="card" style="color:var(--negative);margin-bottom:16px">⚠️ {{ error }}</div>
-{% endif %}
-
-<div class="search-bar">
-  <input type="text" id="search" placeholder="Buscar bono (ej: AL41, GD30)..."
-         value="{{ q }}"
-         name="q"
-         hx-get="/market/partial"
-         hx-trigger="keyup changed delay:300ms"
-         hx-target="#bond-tbody"
->
+<div class="market-header">
+  <h2>Bonos</h2>
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M14 14L17.5 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <input type="text" id="search" class="search-input" placeholder="Buscar por ticker o nombre..."
+           value="{{ q }}"
+           name="q"
+           hx-get="/market/partial"
+           hx-trigger="keyup changed delay:300ms"
+           hx-target="#bond-tbody"
+           hx-include="this"
+           autocomplete="off">
+  </div>
 </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Ticker</th><th>Nombre</th><th>Moneda</th>
-      <th>Precio</th><th>Variación</th><th>TIR</th><th>Vencimiento</th>
-    </tr>
-  </thead>
-  <tbody id="bond-tbody"
-         hx-get="/market/partial"
-         hx-trigger="every 300s"
-         hx-swap="innerHTML">
-    {% include "partials/bond_rows.html" %}
-  </tbody>
-</table>
+{% if error %}
+<div class="alert-error">⚠ {{ error }}</div>
+{% endif %}
+
+<div class="table-wrap">
+  <table class="bonds-table">
+    <thead>
+      <tr>
+        <th>Ticker</th>
+        <th>Nombre</th>
+        <th>Mon.</th>
+        <th class="num">Precio</th>
+        <th class="num">Var. %</th>
+        <th class="num">TIR %</th>
+        <th class="num">Duration</th>
+        <th class="num">Vencimiento</th>
+      </tr>
+    </thead>
+    <tbody id="bond-tbody"
+           hx-get="/market/partial"
+           hx-trigger="every 300s"
+           hx-swap="innerHTML">
+      {% include "partials/bond_rows.html" %}
+    </tbody>
+  </table>
+</div>
+
+<style>
+.market-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+.market-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+.search-wrap {
+  position: relative;
+  flex: 0 0 280px;
+}
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  padding: 7px 12px 7px 34px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.85rem;
+  outline: none;
+  box-sizing: border-box;
+}
+.search-input:focus {
+  border-color: var(--accent);
+}
+.alert-error {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.3);
+  color: var(--negative);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+}
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.bonds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+.bonds-table thead tr {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.bonds-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.bonds-table th.num { text-align: right; }
+.bonds-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.bonds-table tbody tr:last-child { border-bottom: none; }
+.bonds-table tbody tr:hover { background: var(--surface2); }
+.bonds-table td {
+  padding: 9px 14px;
+  vertical-align: middle;
+  color: var(--text);
+  white-space: nowrap;
+}
+.bonds-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.ticker-label {
+  font-weight: 600;
+  font-size: 0.87rem;
+  color: var(--text);
+  letter-spacing: .02em;
+}
+.name-col {
+  color: var(--text-muted);
+  font-size: 0.80rem;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.currency-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.currency-badge.usd { background: rgba(59,130,246,.15); color: #60a5fa; }
+.currency-badge.ars { background: rgba(16,185,129,.12); color: #34d399; }
+.maturity-col { color: var(--text-muted); font-size: 0.80rem; }
+.positive { color: var(--positive); }
+.negative { color: var(--negative); }
+</style>
 {% endblock %}

@@ -1,4 +1,4 @@
-import asyncio
+import json
 import time
 import httpx
 from bs4 import BeautifulSoup
@@ -7,6 +7,13 @@ from app.config import PRICE_CACHE_TTL_SECONDS
 SCRAPE_URL = "https://www.portfoliopersonal.com/Cotizaciones/Bonos"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+}
+
+# currency id -> symbol
+_CURRENCY_MAP = {
+    10000: "ARS",
+    10001: "USD",
+    22013: "USD",
 }
 
 
@@ -34,46 +41,30 @@ class PPIService:
             resp.raise_for_status()
 
         soup = BeautifulSoup(resp.text, "html.parser")
+        script_tag = soup.find("script", {"id": "__NEXT_DATA__"})
+        if not script_tag:
+            return []
+
+        data = json.loads(script_tag.string)
+        instruments = data.get("props", {}).get("pageProps", {}).get("instruments", [])
+
         bonds = []
-
-        table = soup.find("table")
-        if not table:
-            return bonds
-
-        rows = table.find_all("tr")
-        for row in rows[1:]:  # skip header
-            cols = row.find_all("td")
-            if len(cols) < 6:
-                continue
+        for inst in instruments:
             try:
-                ticker = cols[0].get_text(strip=True)
-                name = cols[1].get_text(strip=True) if len(cols) > 1 else ""
-                price_text = cols[2].get_text(strip=True) if len(cols) > 2 else ""
-                variation_text = cols[3].get_text(strip=True) if len(cols) > 3 else ""
-                tir_text = cols[5].get_text(strip=True) if len(cols) > 5 else ""
-                duration_text = cols[9].get_text(strip=True) if len(cols) > 9 else ""
-
-                # Detect currency from price text
-                currency = "USD" if "US$" in price_text else "ARS"
-
-                # Clean numeric values
-                price = _parse_float(price_text.replace("US$", "").replace("AR$", "").replace("$", ""))
-                variation = _parse_float(variation_text.replace("%", ""))
-                tir = _parse_float(tir_text.replace("%", ""))
-                duration = _parse_float(duration_text)
-
-                if not ticker:
-                    continue
+                currency_id = inst.get("currency", {}).get("id", 10000)
+                currency = _CURRENCY_MAP.get(currency_id, "ARS")
+                maturity = inst.get("expirationDate", "")[:10] if inst.get("expirationDate") else ""
 
                 bonds.append({
-                    "ticker": ticker,
-                    "name": name,
+                    "ticker": inst.get("ticker", ""),
+                    "name": inst.get("description", ""),
                     "currency": currency,
-                    "price": price,
-                    "variation": variation,
-                    "tir": tir,
-                    "duration": duration,
-                    "maturity": "",
+                    "price": inst.get("lastPrice") or 0,
+                    "variation": inst.get("variation") or 0,
+                    "tir": inst.get("tir") or 0,
+                    "duration": inst.get("modifiedDuration") or 0,
+                    "maturity": maturity,
+                    "volume": inst.get("volumen") or 0,
                 })
             except Exception:
                 continue

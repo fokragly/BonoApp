@@ -1,20 +1,12 @@
 from fastapi import APIRouter, Request, Depends, Query
-from fastapi.responses import HTMLResponse, PlainTextResponse
+from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-import httpx
 from app.dependencies import get_current_user
-from app.services.ppi_service import get_ppi_service, SCRAPE_URL, HEADERS
+from app.services.ppi_service import get_ppi_service
 from app.models.user import User
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
-
-
-@router.get("/market/debug-html", response_class=PlainTextResponse)
-async def debug_html(user: User = Depends(get_current_user)):
-    async with httpx.AsyncClient(headers=HEADERS, follow_redirects=True, timeout=30) as client:
-        resp = await client.get(SCRAPE_URL)
-    return resp.text[:5000]
 
 
 @router.get("/market", response_class=HTMLResponse)
@@ -30,11 +22,11 @@ async def market(request: Request, user: User = Depends(get_current_user),
                 q_upper = q.upper()
                 bonds = [b for b in bonds
                          if q_upper in b.get("ticker", "").upper()
-                         or q.lower() in b.get("description", "").lower()]
+                         or q.lower() in b.get("name", "").lower()]
         except Exception as e:
             error = f"Error cargando precios: {e}"
     else:
-        error = "Configurá las credenciales de PPI en el panel Admin."
+        error = "Servicio no disponible."
     return templates.TemplateResponse("market.html", {
         "request": request, "user": user, "bonds": bonds,
         "error": error, "q": q, "active": "market"
@@ -53,7 +45,7 @@ async def market_partial(request: Request, user: User = Depends(get_current_user
                 q_upper = q.upper()
                 bonds = [b for b in bonds
                          if q_upper in b.get("ticker", "").upper()
-                         or q.lower() in b.get("description", "").lower()]
+                         or q.lower() in b.get("name", "").lower()]
         except Exception:
             pass
     return templates.TemplateResponse("partials/bond_rows.html",
