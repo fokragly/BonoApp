@@ -12,9 +12,7 @@ from app.scheduler import start_scheduler, stop_scheduler
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
-    config = db_service.get_ppi_config()
-    if config:
-        init_ppi_service(config["username_ppi"], config["password_ppi"])
+    init_ppi_service()
     start_scheduler()
     yield
     stop_scheduler()

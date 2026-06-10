@@ -1,42 +1,18 @@
 import asyncio
 import time
 import httpx
-from app.config import PPI_BASE_URL, PRICE_CACHE_TTL_SECONDS
+from bs4 import BeautifulSoup
+from app.config import PRICE_CACHE_TTL_SECONDS
+
+SCRAPE_URL = "https://www.portfoliopersonal.com/Cotizaciones/Bonos"
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+}
 
 
 class PPIService:
-    def __init__(self, username: str, password: str):
-        self._username = username
-        self._password = password
-        self._token: str | None = None
-        self._token_expiry: float = 0
-        self._cache: dict = {}  # key -> (data, expires_at)
-        self._token_lock = asyncio.Lock()
-
-    async def _ensure_token(self):
-        if self._token and time.time() < self._token_expiry:
-            return
-        async with self._token_lock:
-            # Double-check after acquiring lock
-            if self._token and time.time() < self._token_expiry:
-                return
-            async with httpx.AsyncClient() as client:
-                resp = await client.post(
-                    f"{PPI_BASE_URL}/v2.0/Account/LoginApi",
-                    json={"username": self._username, "password": self._password}
-                )
-                resp.raise_for_status()
-                data = resp.json()
-                # PPI may return token under different keys; try all known variants
-                self._token = (data.get("accessToken") or data.get("token")
-                               or data.get("access_token") or data.get("AccessToken"))
-                if not self._token:
-                    raise ValueError(
-                        f"PPI login succeeded but no token found in response. "
-                        f"Known keys: {list(data.keys())}"
-                    )
-                # Token valid ~24h, refresh every 20h to be safe
-                self._token_expiry = time.time() + 20 * 3600
+    def __init__(self, username: str = "", password: str = ""):
+        self._cache: dict = {}
 
     def _get_cache(self, key: str):
         if key in self._cache:
@@ -49,49 +25,94 @@ class PPIService:
         self._cache[key] = (data, time.time() + PRICE_CACHE_TTL_SECONDS)
 
     async def get_bonds(self, instrument_type: str = "BONOS") -> list[dict]:
-        cache_key = f"bonds_{instrument_type}"
-        cached = self._get_cache(cache_key)
+        cached = self._get_cache("bonds")
         if cached is not None:
             return cached
-        await self._ensure_token()
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(
-                f"{PPI_BASE_URL}/v2.0/MarketData/Search",
-                params={"type": instrument_type},
-                headers={"Authorization": f"Bearer {self._token}"}
-            )
+
+        async with httpx.AsyncClient(headers=HEADERS, follow_redirects=True, timeout=30) as client:
+            resp = await client.get(SCRAPE_URL)
             resp.raise_for_status()
-            data = resp.json()
-        self._set_cache(cache_key, data)
-        return data
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+        bonds = []
+
+        table = soup.find("table")
+        if not table:
+            return bonds
+
+        rows = table.find_all("tr")
+        for row in rows[1:]:  # skip header
+            cols = row.find_all("td")
+            if len(cols) < 6:
+                continue
+            try:
+                ticker = cols[0].get_text(strip=True)
+                name = cols[1].get_text(strip=True) if len(cols) > 1 else ""
+                price_text = cols[2].get_text(strip=True) if len(cols) > 2 else ""
+                variation_text = cols[3].get_text(strip=True) if len(cols) > 3 else ""
+                tir_text = cols[5].get_text(strip=True) if len(cols) > 5 else ""
+                duration_text = cols[9].get_text(strip=True) if len(cols) > 9 else ""
+
+                # Detect currency from price text
+                currency = "USD" if "US$" in price_text else "ARS"
+
+                # Clean numeric values
+                price = _parse_float(price_text.replace("US$", "").replace("AR$", "").replace("$", ""))
+                variation = _parse_float(variation_text.replace("%", ""))
+                tir = _parse_float(tir_text.replace("%", ""))
+                duration = _parse_float(duration_text)
+
+                if not ticker:
+                    continue
+
+                bonds.append({
+                    "ticker": ticker,
+                    "name": name,
+                    "currency": currency,
+                    "price": price,
+                    "variation": variation,
+                    "tir": tir,
+                    "duration": duration,
+                    "maturity": "",
+                })
+            except Exception:
+                continue
+
+        self._set_cache("bonds", bonds)
+        return bonds
 
     async def get_bond_detail(self, ticker: str) -> dict:
-        cache_key = f"detail_{ticker}"
-        cached = self._get_cache(cache_key)
-        if cached is not None:
-            return cached
-        await self._ensure_token()
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(
-                f"{PPI_BASE_URL}/v2.0/MarketData/Current",
-                params={"ticker": ticker, "type": "BONOS"},
-                headers={"Authorization": f"Bearer {self._token}"}
-            )
-            resp.raise_for_status()
-            data = resp.json()
-        self._set_cache(cache_key, data)
-        return data
+        bonds = await self.get_bonds()
+        for b in bonds:
+            if b["ticker"].upper() == ticker.upper():
+                return b
+        return {}
 
     async def get_price(self, ticker: str) -> float | None:
         detail = await self.get_bond_detail(ticker)
-        for key in ("price", "last", "close"):
-            val = detail.get(key)
-            if val is not None:
-                return float(val)
+        val = detail.get("price")
+        if val is not None:
+            return float(val)
         return None
 
 
-# Global instance — initialized from DB config at app startup
+def _parse_float(text: str) -> float | None:
+    if not text:
+        return None
+    # Handle Argentine number format: 1.234,56 -> 1234.56
+    cleaned = text.strip().replace("\xa0", "").replace(" ", "")
+    # If has both dot and comma, it's Argentine format
+    if "." in cleaned and "," in cleaned:
+        cleaned = cleaned.replace(".", "").replace(",", ".")
+    elif "," in cleaned:
+        cleaned = cleaned.replace(",", ".")
+    try:
+        return float(cleaned)
+    except ValueError:
+        return None
+
+
+# Global instance
 _instance: PPIService | None = None
 
 
@@ -99,7 +120,7 @@ def get_ppi_service() -> PPIService | None:
     return _instance
 
 
-def init_ppi_service(username: str, password: str) -> PPIService:
+def init_ppi_service(username: str = "", password: str = "") -> PPIService:
     global _instance
-    _instance = PPIService(username=username, password=password)
+    _instance = PPIService()
     return _instance
