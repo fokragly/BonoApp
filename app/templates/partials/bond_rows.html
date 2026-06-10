@@ -1,6 +1,34 @@
+{% set ns = namespace(separator_shown=false, had_fav=false) %}
+{% if bonds and bonds[0].ticker in favorites %}
+<tr class="section-label-row">
+  <td colspan="14"><span class="section-label">★ Favoritos</span></td>
+</tr>
+{% endif %}
 {% for b in bonds %}
-{% set var = b.get('variation') or 0 %}
 {% set is_fav = b.ticker in favorites %}
+{% if is_fav %}{% set ns.had_fav = true %}{% endif %}
+{% if not is_fav and not ns.separator_shown and ns.had_fav %}
+{% set ns.separator_shown = true %}
+<tr class="section-divider-row">
+  <td colspan="14"><span class="section-label">Todos los bonos</span></td>
+</tr>
+<tr class="section-header-repeat">
+  <th></th>
+  <th>Especie</th>
+  <th>Nombre</th>
+  <th>Mon.</th>
+  <th class="num">Último</th>
+  <th class="num">Var. %</th>
+  <th class="num">Volumen</th>
+  <th class="num">TIR %</th>
+  <th class="num">Aper.</th>
+  <th class="num">Mínimo</th>
+  <th class="num">Máximo</th>
+  <th class="num">Mod. Duration</th>
+  <th class="num">Últ. Cot.</th>
+  <th class="num">Vencimiento</th>
+</tr>
+{% endif %}
 <tr onclick="window.location='/market/{{ b.ticker | urlencode }}'">
   <td style="width:32px;padding-left:8px">
     <button class="star-btn{% if is_fav %} starred{% endif %}"
@@ -17,7 +45,7 @@
     </span>
   </td>
   <td class="num">{{ b.get('price') | arg_price(b.get('currency')) }}</td>
-  <td class="num {{ 'positive' if var >= 0 else 'negative' }}">{{ var | arg_pct }}</td>
+  <td class="num {{ 'positive' if (b.get('variation') or 0) >= 0 else 'negative' }}">{{ b.get('variation') | arg_pct }}</td>
   <td class="num">{{ b.get('volume') | arg_vol }}</td>
   <td class="num">{{ b.get('tir') | arg_dec(2) }}%</td>
   <td class="num">{{ b.get('opening') | arg_price(b.get('currency')) }}</td>

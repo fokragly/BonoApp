@@ -201,6 +201,37 @@ tr:hover { background: var(--surface2); }
 .quote-col { color: var(--text-muted); font-size: 0.78rem; }
 
 /* ── Star / Favorites ── */
+/* ── Section separators in bond table ── */
+.section-label-row td,
+.section-divider-row td {
+  padding: 6px 14px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.section-divider-row td { border-top: 2px solid var(--border); }
+.section-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.section-header-repeat th {
+  padding: 7px 12px;
+  background: var(--surface);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.section-header-repeat th.num { text-align: right; }
+
+/* ── Star / Favorites ── */
 .star-btn {
   background: none; border: none; cursor: pointer;
   color: var(--text-muted); font-size: 15px; line-height: 1;
