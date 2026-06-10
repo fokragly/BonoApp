@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from app.templates_env import templates
 from app.dependencies import get_current_user
 from app.services import db_service
 from app.services.ppi_service import get_ppi_service
@@ -8,7 +8,6 @@ from app.services.portfolio_service import calculate_portfolio, calculate_total
 from app.models.user import User
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
 
 
 async def _build_portfolio_data() -> tuple[list[dict], float, str | None]:

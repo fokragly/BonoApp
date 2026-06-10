@@ -1,66 +1,221 @@
 :root {
   --bg: #0f0f1a;
-  --bg2: #16213e;
-  --bg3: #1e2a4a;
+  --surface: #13131f;
+  --surface2: #1a1a2e;
+  --surface3: #1e2240;
   --accent: #a8e063;
-  --text: #e0e0e0;
-  --text-muted: #888;
-  --positive: #4caf50;
-  --negative: #f44336;
-  --border: #2a3a5a;
+  --accent2: #7ec8e3;
+  --text: #e2e2e8;
+  --text-muted: #6b7280;
+  --positive: #34d399;
+  --negative: #f87171;
+  --border: #232340;
+  --sidebar-w: 200px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; }
+body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; }
 
-.navbar {
-  display: flex; align-items: center; gap: 24px; padding: 12px 24px;
-  background: var(--bg2); border-bottom: 1px solid var(--border);
+/* ── Layout ── */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
 }
-.navbar-brand { color: var(--accent); font-weight: bold; font-size: 18px; }
-.navbar-links { display: flex; gap: 16px; margin-left: auto; align-items: center; }
-.navbar-links a { color: var(--text-muted); text-decoration: none; }
-.navbar-links a.active, .navbar-links a:hover { color: var(--accent); }
 
-.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 10;
+}
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.brand-icon { font-size: 20px; }
+.brand-name { font-weight: 700; font-size: 1.05rem; color: var(--accent); letter-spacing: .02em; }
 
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.1s, color 0.1s;
+}
+.nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--surface3); color: var(--accent); }
+
+.sidebar-footer {
+  padding: 14px 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sidebar-user {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  padding: 0 8px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.btn-logout svg { width: 16px; height: 16px; }
+.btn-logout:hover { background: var(--surface2); color: var(--negative); }
+
+/* ── Main content ── */
+.main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 28px 32px;
+  min-width: 0;
+}
+
+/* ── Login page ── */
 .login-page { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-.login-card { background: var(--bg2); padding: 40px; border-radius: 12px; width: 360px; }
+.login-card { background: var(--surface); padding: 40px; border-radius: 12px; width: 360px; border: 1px solid var(--border); }
 .login-card h1 { text-align: center; margin-bottom: 24px; color: var(--accent); }
-.login-card input { display: block; width: 100%; padding: 10px; margin-bottom: 12px;
-  background: var(--bg3); border: 1px solid var(--border); color: var(--text);
+.login-card input { display: block; width: 100%; padding: 10px 12px; margin-bottom: 12px;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
   border-radius: 6px; font-size: 14px; }
 .login-card button { width: 100%; padding: 12px; background: var(--accent);
   color: #000; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
 .error { color: var(--negative); margin-bottom: 12px; font-size: 13px; }
 
-table { width: 100%; border-collapse: collapse; }
-th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 12px;
-  text-transform: uppercase; border-bottom: 1px solid var(--border); }
-td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
-tr:hover { background: var(--bg2); }
-.positive { color: var(--positive); }
-.negative { color: var(--negative); }
-.ticker { color: var(--accent); font-weight: bold; font-family: monospace; }
+/* ── Cards ── */
+.card { background: var(--surface); border-radius: 10px; padding: 20px; border: 1px solid var(--border); }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.card-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; letter-spacing: .04em; }
+.card-value { font-size: 22px; font-weight: 700; }
 
-.card { background: var(--bg2); border-radius: 10px; padding: 20px; }
-.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-.card-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
-.card-value { font-size: 24px; font-weight: bold; }
-
+/* ── Buttons ── */
 .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; }
-.btn-primary { background: var(--accent); color: #000; font-weight: bold; }
+.btn-primary { background: var(--accent); color: #000; font-weight: 600; }
 .btn-danger { background: var(--negative); color: #fff; }
 .btn-link { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; }
 .btn-link:hover { color: var(--accent); }
 
-input, select { background: var(--bg3); border: 1px solid var(--border); color: var(--text);
-  padding: 8px 12px; border-radius: 6px; font-size: 14px; }
-.search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-.search-bar input { flex: 1; }
+/* ── Forms ── */
+input, select {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  padding: 8px 12px; border-radius: 6px; font-size: 14px; outline: none;
+}
+input:focus, select:focus { border-color: var(--accent); }
 
-@media (max-width: 768px) {
-  .card-grid { grid-template-columns: 1fr 1fr; }
-  .navbar-links { gap: 10px; font-size: 13px; }
-  .container { padding: 16px; }
+/* ── Tables (generic) ── */
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 11px;
+  text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+tr:hover { background: var(--surface2); }
+.positive { color: var(--positive); }
+.negative { color: var(--negative); }
+.ticker { color: var(--accent); font-weight: bold; font-family: monospace; }
+
+/* ── Market page ── */
+.market-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+.market-header h2 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+.search-wrap { position: relative; flex: 0 0 260px; }
+.search-icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  width: 15px; height: 15px; color: var(--text-muted); pointer-events: none;
+}
+.search-input {
+  width: 100%; padding: 7px 12px 7px 32px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-size: 0.84rem; outline: none;
+  box-sizing: border-box;
+}
+.search-input:focus { border-color: var(--accent); }
+.alert-error {
+  background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.25);
+  color: var(--negative); border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.84rem;
+}
+
+/* ── Bonds table ── */
+.table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+.bonds-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.bonds-table thead tr { background: var(--surface); border-bottom: 1px solid var(--border); }
+.bonds-table th {
+  padding: 9px 12px; text-align: left; font-weight: 500; color: var(--text-muted);
+  font-size: 0.72rem; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
+}
+.bonds-table th.num, .bonds-table td.num { text-align: right; }
+.bonds-table tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+.bonds-table tbody tr:last-child { border-bottom: none; }
+.bonds-table tbody tr:hover { background: var(--surface2); }
+.bonds-table td { padding: 8px 12px; color: var(--text); white-space: nowrap; vertical-align: middle; }
+.bonds-table td.num { font-variant-numeric: tabular-nums; }
+
+.ticker-label { font-weight: 700; font-size: 0.85rem; color: var(--text); letter-spacing: .02em; }
+.name-col { color: var(--text-muted); font-size: 0.78rem; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.currency-badge {
+  display: inline-block; padding: 1px 6px; border-radius: 4px;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: .05em;
+}
+.currency-badge.usd { background: rgba(59,130,246,.15); color: #60a5fa; }
+.currency-badge.ars { background: rgba(52,211,153,.1); color: #34d399; }
+.maturity-col { color: var(--text-muted); font-size: 0.78rem; }
+.quote-col { color: var(--text-muted); font-size: 0.78rem; }
+
+/* ── Star / Favorites ── */
+.star-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 15px; line-height: 1;
+  padding: 2px 4px; border-radius: 4px;
+  transition: color 0.15s, transform 0.15s;
+}
+.star-btn:hover { color: #fbbf24; transform: scale(1.2); }
+.star-btn.starred { color: #fbbf24; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 60px; }
+  .brand-name, .nav-item span, .sidebar-user, .btn-logout span { display: none; }
+  .nav-item { justify-content: center; padding: 10px; }
+  .sidebar-brand { justify-content: center; padding: 16px 0; }
+  .btn-logout { justify-content: center; }
+  .main-content { padding: 18px 16px; }
 }

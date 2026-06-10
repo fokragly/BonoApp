@@ -1,0 +1,7 @@
+<button class="star-btn{% if is_fav %} starred{% endif %}"
+        hx-post="/market/favorite/{{ ticker }}"
+        hx-swap="outerHTML"
+        title="{% if is_fav %}Quitar de favoritos{% else %}Agregar a favoritos{% endif %}"
+        onclick="event.stopPropagation()">
+  {% if is_fav %}★{% else %}☆{% endif %}
+</button>

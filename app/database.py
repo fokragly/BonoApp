@@ -46,6 +46,13 @@ def init_db():
                 username_ppi TEXT NOT NULL,
                 password_ppi TEXT NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS favorites (
+                user_id INTEGER NOT NULL,
+                ticker TEXT NOT NULL,
+                PRIMARY KEY (user_id, ticker),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
         """)
         # Create default admin user if none exists
         from app.auth import hash_password

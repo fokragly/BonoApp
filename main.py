@@ -7,6 +7,7 @@ from app.routers import auth_router, market_router, portfolio_router, history_ro
 from app.services.ppi_service import init_ppi_service
 from app.services import db_service
 from app.scheduler import start_scheduler, stop_scheduler
+import app.templates_env  # noqa: F401 — registers Jinja2 filters on shared templates instance
 
 
 @asynccontextmanager
@@ -27,9 +28,11 @@ app.include_router(portfolio_router.router)
 app.include_router(history_router.router)
 app.include_router(admin_router.router)
 
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
 
 @app.get("/")
 def root():

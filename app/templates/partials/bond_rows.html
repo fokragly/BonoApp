@@ -1,23 +1,32 @@
 {% for b in bonds %}
 {% set var = b.get('variation') or 0 %}
+{% set is_fav = b.ticker in favorites %}
 <tr onclick="window.location='/market/{{ b.ticker | urlencode }}'">
+  <td style="width:32px;padding-left:8px">
+    <button class="star-btn{% if is_fav %} starred{% endif %}"
+            hx-post="/market/favorite/{{ b.ticker }}"
+            hx-swap="outerHTML"
+            title="{% if is_fav %}Quitar de favoritos{% else %}Agregar a favoritos{% endif %}"
+            onclick="event.stopPropagation()">{% if is_fav %}★{% else %}☆{% endif %}</button>
+  </td>
   <td><strong class="ticker-label">{{ b.ticker }}</strong></td>
   <td class="name-col">{{ b.get('name') or '-' }}</td>
-  <td class="currency-badge {{ 'ars' if b.get('currency') == 'ARS' else 'usd' }}">{{ b.get('currency') or 'USD' }}</td>
-  <td class="num">
-    {% if b.get('currency') == 'ARS' %}
-      {{ '{:,.0f}'.format(b.get('price') or 0) }}
-    {% else %}
-      {{ '{:,.2f}'.format(b.get('price') or 0) }}
-    {% endif %}
+  <td>
+    <span class="currency-badge {{ 'ars' if b.get('currency') == 'ARS' else 'usd' }}">
+      {{ b.get('currency') or 'USD' }}
+    </span>
   </td>
-  <td class="num {{ 'positive' if var >= 0 else 'negative' }}">
-    {{ '%+.2f' % var }}%
-  </td>
-  <td class="num">{{ '%.2f' % (b.get('tir') or 0) }}%</td>
-  <td class="num">{{ '%.2f' % (b.get('duration') or 0) }}</td>
+  <td class="num">{{ b.get('price') or 0 | arg_price(b.get('currency')) }}</td>
+  <td class="num {{ 'positive' if var >= 0 else 'negative' }}">{{ var | arg_pct }}</td>
+  <td class="num">{{ b.get('volume') or 0 | arg_vol }}</td>
+  <td class="num">{{ b.get('tir') or 0 | arg_dec(2) }}%</td>
+  <td class="num">{{ b.get('opening') or 0 | arg_price(b.get('currency')) }}</td>
+  <td class="num">{{ b.get('min_day') or 0 | arg_price(b.get('currency')) }}</td>
+  <td class="num">{{ b.get('max_day') or 0 | arg_price(b.get('currency')) }}</td>
+  <td class="num">{{ b.get('duration') or 0 | arg_dec(2) }}</td>
+  <td class="num quote-col">{{ b.get('last_quote') or '-' }}</td>
   <td class="num maturity-col">{{ b.get('maturity') or '-' }}</td>
 </tr>
 {% else %}
-<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted)">Sin resultados</td></tr>
+<tr><td colspan="14" style="text-align:center;padding:32px;color:var(--text-muted)">Sin resultados</td></tr>
 {% endfor %}

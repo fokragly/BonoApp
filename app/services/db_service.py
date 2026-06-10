@@ -161,6 +161,41 @@ def get_snapshot_entries(snapshot_id: str) -> list[SnapshotEntry]:
     ) for r in rows]
 
 
+# --- Favorites ---
+
+def get_user_favorites(user_id: int) -> set:
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            "SELECT ticker FROM favorites WHERE user_id = ?", (user_id,)
+        ).fetchall()
+    finally:
+        conn.close()
+    return {r["ticker"] for r in rows}
+
+
+def toggle_favorite(user_id: int, ticker: str) -> bool:
+    conn = get_conn()
+    try:
+        existing = conn.execute(
+            "SELECT 1 FROM favorites WHERE user_id = ? AND ticker = ?", (user_id, ticker)
+        ).fetchone()
+        if existing:
+            conn.execute(
+                "DELETE FROM favorites WHERE user_id = ? AND ticker = ?", (user_id, ticker)
+            )
+            conn.commit()
+            return False
+        else:
+            conn.execute(
+                "INSERT INTO favorites (user_id, ticker) VALUES (?, ?)", (user_id, ticker)
+            )
+            conn.commit()
+            return True
+    finally:
+        conn.close()
+
+
 # --- PPI Config ---
 
 def save_ppi_config(username_ppi: str, password_ppi: str) -> None:

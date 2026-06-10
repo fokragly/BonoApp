@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, Depends, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
+from app.templates_env import templates
 from app.dependencies import require_admin
 from app.services import db_service
 from app.services.ppi_service import init_ppi_service
@@ -8,7 +8,6 @@ from app.models.user import User
 from app.auth import hash_password
 
 router = APIRouter(prefix="/admin")
-templates = Jinja2Templates(directory="app/templates")
 
 
 # --- Holdings ---

@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
+from app.templates_env import templates
 from app.auth import verify_password, create_access_token
 from app.services import db_service
 from app.config import COOKIE_SECURE
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/login", response_class=HTMLResponse)

@@ -55,6 +55,9 @@ class PPIService:
                 currency = _CURRENCY_MAP.get(currency_id, "ARS")
                 maturity = inst.get("expirationDate", "")[:10] if inst.get("expirationDate") else ""
 
+                last_quote_raw = inst.get("lastQuote", "")
+                last_quote = last_quote_raw[11:16] if len(last_quote_raw) >= 16 else ""
+
                 bonds.append({
                     "ticker": inst.get("ticker", ""),
                     "name": inst.get("description", ""),
@@ -65,6 +68,10 @@ class PPIService:
                     "duration": inst.get("modifiedDuration") or 0,
                     "maturity": maturity,
                     "volume": inst.get("volumen") or 0,
+                    "opening": inst.get("opening") or 0,
+                    "min_day": inst.get("minDay") or 0,
+                    "max_day": inst.get("maxDay") or 0,
+                    "last_quote": last_quote,
                 })
             except Exception:
                 continue
