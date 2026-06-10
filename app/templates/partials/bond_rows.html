@@ -16,14 +16,14 @@
       {{ b.get('currency') or 'USD' }}
     </span>
   </td>
-  <td class="num">{{ b.get('price') or 0 | arg_price(b.get('currency')) }}</td>
+  <td class="num">{{ b.get('price') | arg_price(b.get('currency')) }}</td>
   <td class="num {{ 'positive' if var >= 0 else 'negative' }}">{{ var | arg_pct }}</td>
-  <td class="num">{{ b.get('volume') or 0 | arg_vol }}</td>
-  <td class="num">{{ b.get('tir') or 0 | arg_dec(2) }}%</td>
-  <td class="num">{{ b.get('opening') or 0 | arg_price(b.get('currency')) }}</td>
-  <td class="num">{{ b.get('min_day') or 0 | arg_price(b.get('currency')) }}</td>
-  <td class="num">{{ b.get('max_day') or 0 | arg_price(b.get('currency')) }}</td>
-  <td class="num">{{ b.get('duration') or 0 | arg_dec(2) }}</td>
+  <td class="num">{{ b.get('volume') | arg_vol }}</td>
+  <td class="num">{{ b.get('tir') | arg_dec(2) }}%</td>
+  <td class="num">{{ b.get('opening') | arg_price(b.get('currency')) }}</td>
+  <td class="num">{{ b.get('min_day') | arg_price(b.get('currency')) }}</td>
+  <td class="num">{{ b.get('max_day') | arg_price(b.get('currency')) }}</td>
+  <td class="num">{{ b.get('duration') | arg_dec(2) }}</td>
   <td class="num quote-col">{{ b.get('last_quote') or '-' }}</td>
   <td class="num maturity-col">{{ b.get('maturity') or '-' }}</td>
 </tr>
