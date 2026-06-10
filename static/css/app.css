@@ -186,7 +186,7 @@ tr:hover { background: var(--surface2); }
 .bonds-table tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
 .bonds-table tbody tr:last-child { border-bottom: none; }
 .bonds-table tbody tr:hover { background: var(--surface2); }
-.bonds-table td { padding: 8px 12px; color: var(--text); white-space: nowrap; vertical-align: middle; }
+.bonds-table td { padding: 14px 12px; color: var(--text); white-space: nowrap; vertical-align: middle; }
 .bonds-table td.num { font-variant-numeric: tabular-nums; }
 
 .ticker-label { font-weight: 700; font-size: 0.85rem; color: var(--text); letter-spacing: .02em; }
