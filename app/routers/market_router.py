@@ -1,12 +1,20 @@
 from fastapi import APIRouter, Request, Depends, Query
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.templating import Jinja2Templates
+import httpx
 from app.dependencies import get_current_user
-from app.services.ppi_service import get_ppi_service
+from app.services.ppi_service import get_ppi_service, SCRAPE_URL, HEADERS
 from app.models.user import User
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
+
+
+@router.get("/market/debug-html", response_class=PlainTextResponse)
+async def debug_html(user: User = Depends(get_current_user)):
+    async with httpx.AsyncClient(headers=HEADERS, follow_redirects=True, timeout=30) as client:
+        resp = await client.get(SCRAPE_URL)
+    return resp.text[:5000]
 
 
 @router.get("/market", response_class=HTMLResponse)
