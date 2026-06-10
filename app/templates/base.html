@@ -9,8 +9,8 @@
   <link rel="stylesheet" href="/static/css/app.css">
 </head>
 <body>
-{% if user %}
-<div class="app-layout">
+<div class="{% if user %}app-layout{% endif %}">
+  {% if user %}
   <aside class="sidebar">
     <div class="sidebar-brand">
       <span class="brand-icon">📊</span>
@@ -46,12 +46,10 @@
       </form>
     </div>
   </aside>
-  <main class="main-content">
+  {% endif %}
+  <main class="{% if user %}main-content{% endif %}">
     {% block content %}{% endblock %}
   </main>
 </div>
-{% else %}
-{% block content %}{% endblock %}
-{% endif %}
 </body>
 </html>
