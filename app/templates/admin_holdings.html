@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display:flex;gap:16px;margin-bottom:20px">
+  <a href="/admin/holdings" style="color:var(--accent);font-weight:bold;text-decoration:none">Holdings</a>
+  <a href="/admin/users" style="color:var(--text-muted);text-decoration:none">Usuarios</a>
+  <a href="/admin/config" style="color:var(--text-muted);text-decoration:none">Config PPI</a>
+</div>
+
+<h2 style="margin-bottom:20px">Gestión de Holdings</h2>
+
+{% if request.query_params.get('error') == 'negative-qty' %}
+<div class="card" style="color:var(--negative);margin-bottom:16px">⚠️ La cantidad no puede ser negativa.</div>
+{% endif %}
+
+<div class="card" style="margin-bottom:24px;max-width:440px">
+  <h3 style="margin-bottom:16px">Agregar / Actualizar posición</h3>
+  <form method="post" action="/admin/holdings/upsert">
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+      <div>
+        <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Ticker</label>
+        <input type="text" name="ticker" placeholder="AL41" required style="width:120px;text-transform:uppercase">
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Cantidad de papeles</label>
+        <input type="number" name="quantity" placeholder="100" step="0.01" min="0" required style="width:150px">
+      </div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </div>
+  </form>
+</div>
+
+<table>
+  <thead>
+    <tr><th>Ticker</th><th>Cantidad</th><th>Actualizado</th><th>Acción</th></tr>
+  </thead>
+  <tbody>
+    {% for h in holdings %}
+    <tr>
+      <td class="ticker">{{ h.ticker }}</td>
+      <td>{{ h.quantity }}</td>
+      <td style="color:var(--text-muted);font-size:12px">{{ h.updated_at[:10] }}</td>
+      <td>
+        <form method="post" action="/admin/holdings/delete" style="display:inline"
+              onsubmit="return confirm('¿Eliminar ' + {{ h.ticker | tojson }} + '?')">
+          <input type="hidden" name="ticker" value="{{ h.ticker }}">
+          <button type="submit" class="btn btn-danger" style="padding:4px 10px;font-size:12px">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No hay posiciones cargadas</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

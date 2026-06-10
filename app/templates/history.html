@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="margin-bottom:20px">Historial de Cartera</h2>
+
+{% if not dates %}
+<div class="card" style="color:var(--text-muted)">
+  Aún no hay snapshots. Se generan automáticamente al abrir y cerrar el mercado (lunes a viernes 11:00 y 17:00 ARS).
+</div>
+{% else %}
+
+<div style="display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:start">
+  <!-- Snapshot list -->
+  <div class="card" style="padding:12px">
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase">Snapshots</div>
+    {% for d in dates %}
+    <a href="/history?snapshot_id={{ d.snapshot_id }}"
+       style="display:block;padding:8px;border-radius:6px;text-decoration:none;font-size:12px;
+              {% if d.snapshot_id == snapshot_id %}background:var(--bg3);color:var(--accent);{% else %}color:var(--text-muted);{% endif %}">
+      {{ d.timestamp[:10] }}<br>
+      <span style="font-size:10px">{{ 'Apertura' if d.snapshot_type == 'open' else 'Cierre' }}</span>
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- Selected snapshot detail -->
+  <div>
+    {% if selected_snap %}
+    <div class="card-grid" style="margin-bottom:20px">
+      <div class="card">
+        <div class="card-label">Fecha</div>
+        <div class="card-value" style="font-size:18px">{{ selected_snap.timestamp[:10] }}</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Momento</div>
+        <div class="card-value" style="font-size:18px">
+          {{ 'Apertura' if selected_snap.snapshot_type == 'open' else 'Cierre' }}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Valor total</div>
+        <div class="card-value">${{ '{:,.2f}'.format(total) }}</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <table style="margin-bottom:24px">
+      <thead>
+        <tr><th>Ticker</th><th>Cantidad</th><th>Precio</th><th>Valor</th><th>Moneda</th></tr>
+      </thead>
+      <tbody>
+        {% for e in selected_entries %}
+        <tr>
+          <td class="ticker">{{ e.ticker }}</td>
+          <td>{{ e.quantity }}</td>
+          <td>${{ '%.2f'|format(e.price) }}</td>
+          <td>${{ '{:,.2f}'.format(e.value) }}</td>
+          <td>{{ e.currency }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Sin datos</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Evolution chart (show only when we have more than 1 snapshot) -->
+    {% if chart_data|length > 1 %}
+    <div class="card">
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">Evolución del valor total</div>
+      <canvas id="history-chart" height="200"></canvas>
+    </div>
+    <script>
+    const histLabels = [{% for d in chart_data %}{{ d.label | tojson }},{% endfor %}];
+    const histValues = [{% for d in chart_data %}{{ d.value }},{% endfor %}];
+    new Chart(document.getElementById('history-chart'), {
+      type: 'line',
+      data: {
+        labels: histLabels,
+        datasets: [{
+          data: histValues,
+          borderColor: '#a8e063',
+          backgroundColor: 'rgba(168,224,99,0.1)',
+          tension: 0.3,
+          fill: true,
+          pointRadius: 3
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#888', maxTicksLimit: 10 } },
+          y: { ticks: { color: '#888', callback: v => '$' + v.toLocaleString() } }
+        }
+      }
+    });
+    </script>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

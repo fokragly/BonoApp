@@ -1,0 +1,15 @@
+{% for b in bonds %}
+<tr style="cursor:pointer" onclick="window.location='/market/{{ b.ticker | urlencode }}'">
+  <td><span class="ticker">{{ b.ticker }}</span></td>
+  <td>{{ b.get('description') or b.get('name') or '-' }}</td>
+  <td>{{ b.get('currency') or 'USD' }}</td>
+  <td>${{ '%.2f'|format(b.get('price') or 0) }}</td>
+  <td class="{{ 'positive' if (b.get('changePercent') or 0) >= 0 else 'negative' }}">
+    {{ '%+.2f'|format(b.get('changePercent') or 0) }}%
+  </td>
+  <td>{{ '%.2f'|format(b.get('yield') or b.get('tir') or b.get('yld') or 0) }}%</td>
+  <td>{{ b.get('maturityDate') or b.get('expiration') or '-' }}</td>
+</tr>
+{% else %}
+<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Sin resultados</td></tr>
+{% endfor %}

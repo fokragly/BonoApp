@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<a href="/market" style="color:var(--text-muted);text-decoration:none">← Volver al mercado</a>
+
+{% if error %}
+<div class="card" style="color:var(--negative);margin-top:16px">⚠️ {{ error }}</div>
+{% elif bond %}
+<h2 style="margin:16px 0 8px">
+  <span class="ticker">{{ ticker }}</span>
+  — {{ bond.get('description') or bond.get('name') or '' }}
+</h2>
+
+<div class="card-grid" style="margin-top:20px">
+  <div class="card">
+    <div class="card-label">Precio</div>
+    <div class="card-value">${{ '%.2f'|format(bond.get('price') or 0) }}</div>
+  </div>
+  <div class="card">
+    <div class="card-label">TIR</div>
+    <div class="card-value">{{ '%.2f'|format(bond.get('yield') or bond.get('tir') or bond.get('yld') or 0) }}%</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Variación día</div>
+    <div class="card-value {{ 'positive' if (bond.get('changePercent') or 0) >= 0 else 'negative' }}">
+      {{ '%+.2f'|format(bond.get('changePercent') or 0) }}%
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-label">Moneda</div>
+    <div class="card-value">{{ bond.get('currency') or 'USD' }}</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Vencimiento</div>
+    <div class="card-value" style="font-size:18px">
+      {{ bond.get('maturityDate') or bond.get('expiration') or '-' }}
+    </div>
+  </div>
+</div>
+{% else %}
+<p style="margin-top:20px;color:var(--text-muted)">Bono no encontrado.</p>
+{% endif %}
+{% endblock %}

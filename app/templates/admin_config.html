@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display:flex;gap:16px;margin-bottom:20px">
+  <a href="/admin/holdings" style="color:var(--text-muted);text-decoration:none">Holdings</a>
+  <a href="/admin/users" style="color:var(--text-muted);text-decoration:none">Usuarios</a>
+  <a href="/admin/config" style="color:var(--accent);font-weight:bold;text-decoration:none">Config PPI</a>
+</div>
+
+<h2 style="margin-bottom:20px">Configuración PPI</h2>
+
+{% if request.query_params.get('saved') %}
+<div class="card" style="color:var(--positive);margin-bottom:16px">✓ Credenciales guardadas e inicializadas.</div>
+{% endif %}
+
+<div class="card" style="max-width:420px">
+  <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">
+    Usá las mismas credenciales de tu cuenta en portfoliopersonal.com.
+  </p>
+  <form method="post" action="/admin/config/save">
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Usuario PPI</label>
+      <input type="text" name="username_ppi"
+             value="{{ config.username_ppi if config else '' }}"
+             style="width:100%" required>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Contraseña PPI</label>
+      <input type="password" name="password_ppi"
+             placeholder="{% if config %}(guardada — dejá vacío para no cambiar){% else %}Contraseña{% endif %}"
+             style="width:100%">
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar y conectar</button>
+  </form>
+</div>
+{% endblock %}

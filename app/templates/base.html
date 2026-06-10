@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BondsApp</title>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+  <nav class="navbar">
+    <span class="navbar-brand">📊 BondsApp</span>
+    <div class="navbar-links">
+      <a href="/market" class="{% if active == 'market' %}active{% endif %}">Mercado</a>
+      <a href="/portfolio" class="{% if active == 'portfolio' %}active{% endif %}">Cartera</a>
+      <a href="/history" class="{% if active == 'history' %}active{% endif %}">Historial</a>
+      {% if user and user.role == 'admin' %}
+      <a href="/admin/holdings" class="{% if active == 'admin' %}active{% endif %}">Admin</a>
+      {% endif %}
+      <form action="/logout" method="post" style="display:inline">
+        <button type="submit" class="btn-link">Salir</button>
+      </form>
+    </div>
+  </nav>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

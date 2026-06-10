@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="margin-bottom:20px">Mercado de Bonos</h2>
+
+{% if error %}
+<div class="card" style="color:var(--negative);margin-bottom:16px">⚠️ {{ error }}</div>
+{% endif %}
+
+<div class="search-bar">
+  <input type="text" id="search" placeholder="Buscar bono (ej: AL41, GD30)..."
+         value="{{ q }}"
+         name="q"
+         hx-get="/market/partial"
+         hx-trigger="keyup changed delay:300ms"
+         hx-target="#bond-tbody"
+>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Ticker</th><th>Nombre</th><th>Moneda</th>
+      <th>Precio</th><th>Variación</th><th>TIR</th><th>Vencimiento</th>
+    </tr>
+  </thead>
+  <tbody id="bond-tbody"
+         hx-get="/market/partial"
+         hx-trigger="every 300s"
+         hx-swap="innerHTML">
+    {% include "partials/bond_rows.html" %}
+  </tbody>
+</table>
+{% endblock %}

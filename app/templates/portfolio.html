@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 style="margin-bottom:20px">Cartera</h2>
+
+{% if error %}
+<div class="card" style="color:var(--negative);margin-bottom:16px">⚠️ {{ error }}</div>
+{% endif %}
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-label">Valor total (USD)</div>
+    <div class="card-value">${{ '{:,.2f}'.format(total) }}</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Posiciones</div>
+    <div class="card-value">{{ items|length }}</div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start">
+  <div>
+    <table>
+      <thead>
+        <tr>
+          <th>Ticker</th><th>Cantidad</th><th>Precio</th>
+          <th>Valor</th><th>%</th><th>Var. día</th>
+        </tr>
+      </thead>
+      <tbody id="portfolio-tbody"
+             hx-get="/portfolio/partial"
+             hx-trigger="every 300s"
+             hx-swap="innerHTML">
+        {% include "partials/portfolio_rows.html" %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <canvas id="pie-chart" height="300"></canvas>
+  </div>
+</div>
+
+<script>
+const labels = [{% for i in items %}{{ i.ticker | tojson }},{% endfor %}];
+const values = [{% for i in items %}{{ i.value or 0 }},{% endfor %}];
+const colors = ['#a8e063','#4fc3f7','#ff9800','#e040fb','#f44336','#00bcd4','#ffeb3b','#8bc34a'];
+new Chart(document.getElementById('pie-chart'), {
+  type: 'doughnut',
+  data: { labels, datasets: [{ data: values, backgroundColor: colors.slice(0, values.length) }] },
+  options: {
+    plugins: { legend: { labels: { color: '#e0e0e0' } } },
+    responsive: true
+  }
+});
+</script>
+{% endblock %}

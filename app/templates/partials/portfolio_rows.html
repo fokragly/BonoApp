@@ -1,0 +1,19 @@
+{% for item in items %}
+<tr>
+  <td><a href="/market/{{ item.ticker }}" class="ticker">{{ item.ticker }}</a></td>
+  <td>{{ item.quantity }}</td>
+  <td>{% if item.price is not none %}${{ '%.2f'|format(item.price) }}{% else %}-{% endif %}</td>
+  <td>{% if item.value is not none %}${{ '{:,.2f}'.format(item.value) }}{% else %}-{% endif %}</td>
+  <td>{{ item.pct }}%</td>
+  <td class="{{ 'positive' if (item.changePercent or 0) >= 0 else 'negative' }}">
+    {% if item.changePercent is not none %}{{ '%+.2f'|format(item.changePercent) }}%{% else %}-{% endif %}
+  </td>
+</tr>
+{% else %}
+<tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No hay posiciones cargadas</td></tr>
+{% endfor %}
+<tr style="font-weight:bold;border-top:2px solid var(--border)">
+  <td colspan="3">TOTAL</td>
+  <td>${{ '{:,.2f}'.format(total) }}</td>
+  <td>100%</td><td></td>
+</tr>
