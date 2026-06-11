@@ -28,6 +28,10 @@
         <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Precio compra (opcional)</label>
         <input type="number" name="buy_price" placeholder="107850" step="0.01" min="0" style="width:160px">
       </div>
+      <div>
+        <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Fecha compra (opcional)</label>
+        <input type="date" name="buy_date" style="width:150px">
+      </div>
       <button type="submit" class="btn btn-primary">Guardar</button>
     </div>
   </form>
@@ -36,7 +40,7 @@
 <table>
   <thead>
     <tr>
-      <th>Ticker</th><th>Cantidad</th><th>P. Compra</th><th>Último</th><th>Valor</th>
+      <th>Ticker</th><th>Cantidad</th><th>P. Compra</th><th>F. Compra</th><th>Último</th><th>Valor</th>
       <th>Actualizado</th><th>Acción</th>
     </tr>
   </thead>
@@ -48,6 +52,7 @@
       <td style="text-align:right;color:var(--text-muted)">
         {% if h.buy_price %}{{ h.buy_price | arg_price(h.currency) }}{% else %}-{% endif %}
       </td>
+      <td style="color:var(--text-muted);font-size:12px">{{ h.buy_date or '-' }}</td>
       <td style="text-align:right">
         <span style="font-size:11px;color:var(--text-muted)">{{ h.currency }}</span>
         {{ h.price | arg_price(h.currency) }}
@@ -66,7 +71,7 @@
       </td>
     </tr>
     {% else %}
-    <tr><td colspan="7" style="text-align:center;color:var(--text-muted)">No hay posiciones cargadas</td></tr>
+    <tr><td colspan="8" style="text-align:center;color:var(--text-muted)">No hay posiciones cargadas</td></tr>
     {% endfor %}
   </tbody>
 </table>

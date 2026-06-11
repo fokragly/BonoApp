@@ -46,10 +46,11 @@ async def admin_holdings(request: Request, user: User = Depends(require_admin)):
 @router.post("/holdings/upsert")
 def upsert_holding(request: Request, user: User = Depends(require_admin),
                    ticker: str = Form(), quantity: float = Form(),
-                   buy_price: float | None = Form(default=None)):
+                   buy_price: float | None = Form(default=None),
+                   buy_date: str | None = Form(default=None)):
     if quantity < 0:
         return RedirectResponse(url="/admin/holdings?error=negative-qty", status_code=303)
-    db_service.upsert_holding(ticker.upper().strip(), quantity, buy_price)
+    db_service.upsert_holding(ticker.upper().strip(), quantity, buy_price, buy_date or None)
     return RedirectResponse(url="/admin/holdings", status_code=303)
 
 

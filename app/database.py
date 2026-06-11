@@ -27,7 +27,8 @@ def init_db():
                 ticker TEXT UNIQUE NOT NULL,
                 quantity REAL NOT NULL,
                 updated_at TEXT NOT NULL,
-                buy_price REAL
+                buy_price REAL,
+                buy_date TEXT
             );
 
             CREATE TABLE IF NOT EXISTS snapshots (
@@ -59,6 +60,9 @@ def init_db():
         cols = [r[1] for r in conn.execute("PRAGMA table_info(holdings)").fetchall()]
         if "buy_price" not in cols:
             conn.execute("ALTER TABLE holdings ADD COLUMN buy_price REAL")
+            conn.commit()
+        if "buy_date" not in cols:
+            conn.execute("ALTER TABLE holdings ADD COLUMN buy_date TEXT")
             conn.commit()
         # Create default admin user if none exists
         from app.auth import hash_password

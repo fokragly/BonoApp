@@ -67,17 +67,21 @@ def update_user_password(username: str, hashed_password: str) -> None:
 
 # --- Holdings ---
 
-def upsert_holding(ticker: str, quantity: float, buy_price: float | None = None) -> None:
+def upsert_holding(ticker: str, quantity: float,
+                   buy_price: float | None = None,
+                   buy_date: str | None = None) -> None:
     now = datetime.now(timezone.utc).isoformat()
     conn = get_conn()
     try:
         conn.execute(
-            """INSERT INTO holdings (ticker, quantity, updated_at, buy_price) VALUES (?, ?, ?, ?)
+            """INSERT INTO holdings (ticker, quantity, updated_at, buy_price, buy_date)
+               VALUES (?, ?, ?, ?, ?)
                ON CONFLICT(ticker) DO UPDATE SET
                  quantity=excluded.quantity,
                  updated_at=excluded.updated_at,
-                 buy_price=COALESCE(excluded.buy_price, holdings.buy_price)""",
-            (ticker, quantity, now, buy_price)
+                 buy_price=COALESCE(excluded.buy_price, holdings.buy_price),
+                 buy_date=COALESCE(excluded.buy_date, holdings.buy_date)""",
+            (ticker, quantity, now, buy_price, buy_date)
         )
         conn.commit()
     finally:
@@ -87,11 +91,14 @@ def upsert_holding(ticker: str, quantity: float, buy_price: float | None = None)
 def get_all_holdings() -> list[Holding]:
     conn = get_conn()
     try:
-        rows = conn.execute("SELECT id, ticker, quantity, updated_at, buy_price FROM holdings").fetchall()
+        rows = conn.execute(
+            "SELECT id, ticker, quantity, updated_at, buy_price, buy_date FROM holdings"
+        ).fetchall()
     finally:
         conn.close()
     return [Holding(id=r["id"], ticker=r["ticker"], quantity=r["quantity"],
-                    updated_at=r["updated_at"], buy_price=r["buy_price"]) for r in rows]
+                    updated_at=r["updated_at"], buy_price=r["buy_price"],
+                    buy_date=r["buy_date"]) for r in rows]
 
 
 def delete_holding(ticker: str) -> None:
