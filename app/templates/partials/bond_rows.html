@@ -9,6 +9,7 @@
 {% if is_fav %}{% set ns.had_fav = true %}{% endif %}
 {% if not is_fav and not ns.separator_shown and ns.had_fav %}
 {% set ns.separator_shown = true %}
+<tr style="height:24px;background:var(--bg)"><td colspan="14"></td></tr>
 <tr class="section-divider-row">
   <td colspan="14"><span class="section-label">Todos los bonos</span></td>
 </tr>
