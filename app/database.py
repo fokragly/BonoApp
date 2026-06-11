@@ -26,7 +26,8 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 ticker TEXT UNIQUE NOT NULL,
                 quantity REAL NOT NULL,
-                updated_at TEXT NOT NULL
+                updated_at TEXT NOT NULL,
+                buy_price REAL
             );
 
             CREATE TABLE IF NOT EXISTS snapshots (
@@ -54,6 +55,11 @@ def init_db():
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
         """)
+        # Migrate: add buy_price if missing
+        cols = [r[1] for r in conn.execute("PRAGMA table_info(holdings)").fetchall()]
+        if "buy_price" not in cols:
+            conn.execute("ALTER TABLE holdings ADD COLUMN buy_price REAL")
+            conn.commit()
         # Create default admin user if none exists
         from app.auth import hash_password
         existing = conn.execute("SELECT id FROM users WHERE role='admin'").fetchone()

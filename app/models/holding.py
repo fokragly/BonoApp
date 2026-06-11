@@ -6,3 +6,4 @@ class Holding:
     ticker: str
     quantity: float
     updated_at: str  # ISO 8601
+    buy_price: float | None = None

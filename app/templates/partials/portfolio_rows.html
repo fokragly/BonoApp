@@ -7,11 +7,22 @@
       {{ item.currency or 'USD' }}
     </span>
   </td>
+  <td style="text-align:right;color:var(--text-muted)" data-val="{{ item.buy_price or 0 }}">
+    {% if item.buy_price %}{{ item.buy_price | arg_price(item.currency) }}{% else %}-{% endif %}
+  </td>
   <td style="text-align:right" data-val="{{ item.price or 0 }}">
     {% if item.price is not none %}{{ item.price | arg_price(item.currency) }}{% else %}-{% endif %}
   </td>
   <td style="text-align:right;font-weight:600" data-val="{{ item.value or 0 }}">
     {% if item.value is not none %}{{ item.value | arg_price(item.currency) }}{% else %}-{% endif %}
+  </td>
+  <td style="text-align:right" data-val="{{ item.pnl_pct or 0 }}"
+      class="{{ 'positive' if (item.pnl_pct or 0) >= 0 else 'negative' }}">
+    {% if item.pnl_pct is not none %}{{ item.pnl_pct | arg_pct }}{% else %}-{% endif %}
+  </td>
+  <td style="text-align:right" data-val="{{ item.pnl_abs or 0 }}"
+      class="{{ 'positive' if (item.pnl_abs or 0) >= 0 else 'negative' }}">
+    {% if item.pnl_abs is not none %}{{ item.pnl_abs | arg_price(item.currency) }}{% else %}-{% endif %}
   </td>
   <td style="text-align:right" data-val="{{ item.pct or 0 }}">{{ item.pct }}%</td>
   <td class="{{ 'positive' if (item.variation or 0) >= 0 else 'negative' }}" style="text-align:right" data-val="{{ item.variation or 0 }}">
@@ -19,12 +30,12 @@
   </td>
 </tr>
 {% else %}
-<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">No hay posiciones cargadas</td></tr>
+<tr><td colspan="10" style="text-align:center;color:var(--text-muted)">No hay posiciones cargadas</td></tr>
 {% endfor %}
 <tr style="font-weight:bold;border-top:2px solid var(--border)">
-  <td colspan="4">TOTAL</td>
+  <td colspan="5">TOTAL</td>
   {% for currency, val in totals_by_currency.items() %}
   <td style="text-align:right">{{ currency }} {{ val | arg_price(currency) }}</td>
   {% endfor %}
-  <td>100%</td><td></td>
+  <td colspan="4"></td>
 </tr>

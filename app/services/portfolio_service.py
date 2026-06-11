@@ -10,6 +10,14 @@ def calculate_portfolio(holdings: list[dict], prices: dict[str, dict]) -> list[d
         else:
             price = None
             value = None
+        buy_price = h.get("buy_price")
+        pnl_pct = None
+        pnl_abs = None
+        if price is not None and buy_price:
+            pnl_pct = round((price - buy_price) / buy_price * 100, 2)
+            qty = h["quantity"]
+            pnl_abs = round((price - buy_price) / 100 * qty, 2)
+
         result.append({
             "ticker": ticker,
             "quantity": h["quantity"],
@@ -17,6 +25,9 @@ def calculate_portfolio(holdings: list[dict], prices: dict[str, dict]) -> list[d
             "value": value,
             "variation": price_data.get("variation") if price_data else None,
             "currency": price_data.get("currency", "USD") if price_data else "USD",
+            "buy_price": buy_price,
+            "pnl_pct": pnl_pct,
+            "pnl_abs": pnl_abs,
         })
     return result
 

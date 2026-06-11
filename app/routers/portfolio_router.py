@@ -23,7 +23,7 @@ async def _build_portfolio_data() -> tuple[list[dict], float, str | None]:
             except Exception as e:
                 error = f"Error cargando {h.ticker}: {e}"
     items = calculate_portfolio(
-        [{"ticker": h.ticker, "quantity": h.quantity} for h in holdings],
+        [{"ticker": h.ticker, "quantity": h.quantity, "buy_price": h.buy_price} for h in holdings],
         prices
     )
     total = calculate_total(items)

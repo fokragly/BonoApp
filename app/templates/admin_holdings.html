@@ -21,8 +21,12 @@
         <input type="text" name="ticker" placeholder="AL41" required style="width:120px;text-transform:uppercase">
       </div>
       <div>
-        <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Cantidad de papeles</label>
-        <input type="number" name="quantity" placeholder="100" step="0.01" min="0" required style="width:150px">
+        <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Cantidad</label>
+        <input type="number" name="quantity" placeholder="100" step="0.01" min="0" required style="width:130px">
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Precio compra (opcional)</label>
+        <input type="number" name="buy_price" placeholder="107850" step="0.01" min="0" style="width:160px">
       </div>
       <button type="submit" class="btn btn-primary">Guardar</button>
     </div>
@@ -32,7 +36,7 @@
 <table>
   <thead>
     <tr>
-      <th>Ticker</th><th>Cantidad</th><th>Precio</th><th>Valor</th>
+      <th>Ticker</th><th>Cantidad</th><th>P. Compra</th><th>Último</th><th>Valor</th>
       <th>Actualizado</th><th>Acción</th>
     </tr>
   </thead>
@@ -41,6 +45,9 @@
     <tr>
       <td class="ticker">{{ h.ticker }}</td>
       <td style="text-align:right">{{ h.quantity | arg_dec(0) }}</td>
+      <td style="text-align:right;color:var(--text-muted)">
+        {% if h.buy_price %}{{ h.buy_price | arg_price(h.currency) }}{% else %}-{% endif %}
+      </td>
       <td style="text-align:right">
         <span style="font-size:11px;color:var(--text-muted)">{{ h.currency }}</span>
         {{ h.price | arg_price(h.currency) }}
@@ -59,7 +66,7 @@
       </td>
     </tr>
     {% else %}
-    <tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No hay posiciones cargadas</td></tr>
+    <tr><td colspan="7" style="text-align:center;color:var(--text-muted)">No hay posiciones cargadas</td></tr>
     {% endfor %}
   </tbody>
 </table>
