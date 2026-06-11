@@ -21,11 +21,16 @@
 
 <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start">
   <div>
-    <table>
+    <table data-sortable>
       <thead>
         <tr>
-          <th>Ticker</th><th>Cantidad</th><th>Mon.</th><th>Precio</th>
-          <th>Valor</th><th>%</th><th>Var. día</th>
+          <th data-sort="0">Ticker</th>
+          <th class="num" data-sort="1">Cantidad</th>
+          <th data-sort="2">Mon.</th>
+          <th class="num" data-sort="3">Precio</th>
+          <th class="num" data-sort="4">Valor</th>
+          <th class="num" data-sort="5">%</th>
+          <th class="num" data-sort="6">Var. día</th>
         </tr>
       </thead>
       <tbody id="portfolio-tbody"

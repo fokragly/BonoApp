@@ -1,20 +1,20 @@
 {% for item in items %}
 <tr>
   <td><a href="/market/{{ item.ticker }}" class="ticker">{{ item.ticker }}</a></td>
-  <td style="text-align:right">{{ item.quantity | arg_dec(0) }}</td>
+  <td style="text-align:right" data-val="{{ item.quantity or 0 }}">{{ item.quantity | arg_dec(0) }}</td>
   <td>
     <span class="currency-badge {{ 'ars' if item.currency == 'ARS' else 'usd' }}">
       {{ item.currency or 'USD' }}
     </span>
   </td>
-  <td style="text-align:right">
+  <td style="text-align:right" data-val="{{ item.price or 0 }}">
     {% if item.price is not none %}{{ item.price | arg_price(item.currency) }}{% else %}-{% endif %}
   </td>
-  <td style="text-align:right;font-weight:600">
+  <td style="text-align:right;font-weight:600" data-val="{{ item.value or 0 }}">
     {% if item.value is not none %}{{ item.value | arg_price(item.currency) }}{% else %}-{% endif %}
   </td>
-  <td style="text-align:right">{{ item.pct }}%</td>
-  <td class="{{ 'positive' if (item.variation or 0) >= 0 else 'negative' }}" style="text-align:right">
+  <td style="text-align:right" data-val="{{ item.pct or 0 }}">{{ item.pct }}%</td>
+  <td class="{{ 'positive' if (item.variation or 0) >= 0 else 'negative' }}" style="text-align:right" data-val="{{ item.variation or 0 }}">
     {% if item.variation is not none %}{{ item.variation | arg_pct }}{% else %}-{% endif %}
   </td>
 </tr>
