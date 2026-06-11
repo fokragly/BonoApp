@@ -6,7 +6,7 @@ def calculate_portfolio(holdings: list[dict], prices: dict[str, dict]) -> list[d
         if price_data is not None:
             price = price_data.get("price")
             # price can be 0.0 (valid) — only treat as missing if key absent
-            value = round(h["quantity"] * price, 2) if price is not None else None
+            value = round(h["quantity"] * price / 100, 2) if price is not None else None
         else:
             price = None
             value = None
