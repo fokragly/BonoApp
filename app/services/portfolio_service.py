@@ -15,7 +15,7 @@ def calculate_portfolio(holdings: list[dict], prices: dict[str, dict]) -> list[d
             "quantity": h["quantity"],
             "price": price,
             "value": value,
-            "changePercent": price_data.get("changePercent") if price_data else None,
+            "variation": price_data.get("variation") if price_data else None,
             "currency": price_data.get("currency", "USD") if price_data else "USD",
         })
     return result
