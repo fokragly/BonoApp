@@ -143,6 +143,7 @@ table { width: 100%; border-collapse: collapse; }
 th { text-align: left; padding: 10px 12px; color: var(--text-muted); font-size: 11px;
   text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--border); }
 td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.bonds-table td { padding: 14px 12px !important; }
 tr:hover { background: var(--surface2); }
 .positive { color: var(--positive); }
 .negative { color: var(--negative); }
