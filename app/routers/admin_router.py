@@ -13,10 +13,33 @@ router = APIRouter(prefix="/admin")
 # --- Holdings ---
 
 @router.get("/holdings", response_class=HTMLResponse)
-def admin_holdings(request: Request, user: User = Depends(require_admin)):
+async def admin_holdings(request: Request, user: User = Depends(require_admin)):
     holdings = db_service.get_all_holdings()
+    from app.services.ppi_service import get_ppi_service
+    prices = {}
+    ppi = get_ppi_service()
+    if ppi:
+        try:
+            bonds = await ppi.get_bonds()
+            prices = {b["ticker"]: b for b in bonds}
+        except Exception:
+            pass
+    rows = []
+    for h in holdings:
+        bond = prices.get(h.ticker, {})
+        price = bond.get("price") or 0
+        currency = bond.get("currency") or "USD"
+        value = h.quantity * price
+        rows.append({
+            "ticker": h.ticker,
+            "quantity": h.quantity,
+            "updated_at": h.updated_at,
+            "price": price,
+            "currency": currency,
+            "value": value,
+        })
     return templates.TemplateResponse("admin_holdings.html", {
-        "request": request, "user": user, "holdings": holdings, "active": "admin"
+        "request": request, "user": user, "holdings": rows, "active": "admin"
     })
 
 

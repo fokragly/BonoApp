@@ -31,13 +31,24 @@
 
 <table>
   <thead>
-    <tr><th>Ticker</th><th>Cantidad</th><th>Actualizado</th><th>Acción</th></tr>
+    <tr>
+      <th>Ticker</th><th>Cantidad</th><th>Precio</th><th>Valor</th>
+      <th>Actualizado</th><th>Acción</th>
+    </tr>
   </thead>
   <tbody>
     {% for h in holdings %}
     <tr>
       <td class="ticker">{{ h.ticker }}</td>
-      <td>{{ h.quantity }}</td>
+      <td style="text-align:right">{{ h.quantity | arg_dec(0) }}</td>
+      <td style="text-align:right">
+        <span style="font-size:11px;color:var(--text-muted)">{{ h.currency }}</span>
+        {{ h.price | arg_price(h.currency) }}
+      </td>
+      <td style="text-align:right;font-weight:600">
+        <span style="font-size:11px;color:var(--text-muted)">{{ h.currency }}</span>
+        {{ h.value | arg_price(h.currency) }}
+      </td>
       <td style="color:var(--text-muted);font-size:12px">{{ h.updated_at[:10] }}</td>
       <td>
         <form method="post" action="/admin/holdings/delete" style="display:inline"
@@ -48,7 +59,7 @@
       </td>
     </tr>
     {% else %}
-    <tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No hay posiciones cargadas</td></tr>
+    <tr><td colspan="6" style="text-align:center;color:var(--text-muted)">No hay posiciones cargadas</td></tr>
     {% endfor %}
   </tbody>
 </table>
