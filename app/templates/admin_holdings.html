@@ -6,36 +6,71 @@
   <a href="/admin/config" style="color:var(--text-muted);text-decoration:none">Config PPI</a>
 </div>
 
-<h2 style="margin-bottom:20px">Gestión de Holdings</h2>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+  <h2>Gestión de Holdings</h2>
+  <form method="post" action="/admin/snapshot">
+    <button type="submit" class="btn btn-primary" style="background:var(--surface2);border:1px solid var(--border)">
+      📸 Tomar Snapshot
+    </button>
+  </form>
+</div>
 
 {% if request.query_params.get('error') == 'negative-qty' %}
 <div class="card" style="color:var(--negative);margin-bottom:16px">⚠️ La cantidad no puede ser negativa.</div>
 {% endif %}
+{% if request.query_params.get('snapshot') == 'ok' %}
+<div class="card" style="color:var(--positive);margin-bottom:16px">✓ Snapshot tomado correctamente.</div>
+{% elif request.query_params.get('snapshot') == 'error' %}
+<div class="card" style="color:var(--negative);margin-bottom:16px">⚠️ Error al tomar snapshot (¿PPI configurado?).</div>
+{% endif %}
 
-<div class="card" style="margin-bottom:24px;max-width:440px">
-  <h3 style="margin-bottom:16px">Agregar / Actualizar posición</h3>
-  <form method="post" action="/admin/holdings/upsert">
+<div class="card" style="margin-bottom:24px;max-width:540px" id="holding-form-card">
+  <h3 style="margin-bottom:16px" id="form-title">Agregar posición</h3>
+  <form method="post" action="/admin/holdings/upsert" id="holding-form">
     <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
       <div>
         <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Ticker</label>
-        <input type="text" name="ticker" placeholder="AL41" required style="width:120px;text-transform:uppercase">
+        <input type="text" name="ticker" id="f-ticker" placeholder="AL41" required style="width:120px;text-transform:uppercase">
       </div>
       <div>
         <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Cantidad</label>
-        <input type="number" name="quantity" placeholder="100" step="0.01" min="0" required style="width:130px">
+        <input type="number" name="quantity" id="f-quantity" placeholder="100" step="0.01" min="0" required style="width:130px">
       </div>
       <div>
         <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Precio compra (opcional)</label>
-        <input type="number" name="buy_price" placeholder="107850" step="0.01" min="0" style="width:160px">
+        <input type="number" name="buy_price" id="f-buy_price" placeholder="107850" step="0.01" min="0" style="width:160px">
       </div>
       <div>
         <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px">Fecha compra (opcional)</label>
-        <input type="date" name="buy_date" style="width:150px">
+        <input type="date" name="buy_date" id="f-buy_date" style="width:150px">
       </div>
       <button type="submit" class="btn btn-primary">Guardar</button>
+      <button type="button" class="btn" id="form-cancel" style="display:none;background:var(--surface2);border:1px solid var(--border)"
+              onclick="resetForm()">Cancelar</button>
     </div>
   </form>
 </div>
+
+<script>
+function editHolding(ticker, quantity, buyPrice, buyDate) {
+  document.getElementById('f-ticker').value = ticker;
+  document.getElementById('f-ticker').readOnly = true;
+  document.getElementById('f-ticker').style.opacity = '0.6';
+  document.getElementById('f-quantity').value = quantity;
+  document.getElementById('f-buy_price').value = buyPrice || '';
+  document.getElementById('f-buy_date').value = buyDate || '';
+  document.getElementById('form-title').textContent = 'Editando ' + ticker;
+  document.getElementById('form-cancel').style.display = 'inline-block';
+  document.getElementById('holding-form-card').scrollIntoView({behavior:'smooth'});
+}
+function resetForm() {
+  document.getElementById('holding-form').reset();
+  document.getElementById('f-ticker').readOnly = false;
+  document.getElementById('f-ticker').style.opacity = '';
+  document.getElementById('form-title').textContent = 'Agregar posición';
+  document.getElementById('form-cancel').style.display = 'none';
+}
+</script>
 
 <table>
   <thead>
@@ -62,7 +97,11 @@
         {{ h.value | arg_price(h.currency) }}
       </td>
       <td style="color:var(--text-muted);font-size:12px">{{ h.updated_at[:10] }}</td>
-      <td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-primary" style="padding:4px 10px;font-size:12px"
+                onclick="editHolding({{ h.ticker|tojson }}, {{ h.quantity }}, {{ h.buy_price or 'null' }}, {{ h.buy_date|tojson if h.buy_date else 'null' }})">
+          Editar
+        </button>
         <form method="post" action="/admin/holdings/delete" style="display:inline"
               onsubmit="return confirm('¿Eliminar ' + {{ h.ticker | tojson }} + '?')">
           <input type="hidden" name="ticker" value="{{ h.ticker }}">

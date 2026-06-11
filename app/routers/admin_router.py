@@ -61,6 +61,18 @@ def delete_holding(request: Request, user: User = Depends(require_admin),
     return RedirectResponse(url="/admin/holdings", status_code=303)
 
 
+# --- Snapshot manual ---
+
+@router.post("/snapshot")
+async def manual_snapshot(request: Request, user: User = Depends(require_admin)):
+    from app.scheduler import take_snapshot
+    try:
+        await take_snapshot("manual")
+        return RedirectResponse(url="/admin/holdings?snapshot=ok", status_code=303)
+    except Exception:
+        return RedirectResponse(url="/admin/holdings?snapshot=error", status_code=303)
+
+
 # --- Users ---
 
 @router.get("/users", response_class=HTMLResponse)
