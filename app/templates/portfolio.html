@@ -6,11 +6,13 @@
 <div class="card" style="color:var(--negative);margin-bottom:16px">⚠️ {{ error }}</div>
 {% endif %}
 
-<div class="card-grid">
+<div class="card-grid" style="margin-bottom:24px">
+  {% for currency, val in totals_by_currency.items() %}
   <div class="card">
-    <div class="card-label">Valor total (USD)</div>
-    <div class="card-value">${{ '{:,.2f}'.format(total) }}</div>
+    <div class="card-label">Valor total {{ currency }}</div>
+    <div class="card-value" style="font-size:1.4rem">{{ val | arg_price(currency) }}</div>
   </div>
+  {% endfor %}
   <div class="card">
     <div class="card-label">Posiciones</div>
     <div class="card-value">{{ items|length }}</div>
@@ -22,13 +24,13 @@
     <table>
       <thead>
         <tr>
-          <th>Ticker</th><th>Cantidad</th><th>Precio</th>
+          <th>Ticker</th><th>Cantidad</th><th>Mon.</th><th>Precio</th>
           <th>Valor</th><th>%</th><th>Var. día</th>
         </tr>
       </thead>
       <tbody id="portfolio-tbody"
              hx-get="/portfolio/partial"
-             hx-trigger="every 300s"
+             hx-trigger="every 900s"
              hx-swap="innerHTML">
         {% include "partials/portfolio_rows.html" %}
       </tbody>

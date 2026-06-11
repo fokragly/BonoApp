@@ -27,22 +27,28 @@ async def _build_portfolio_data() -> tuple[list[dict], float, str | None]:
         prices
     )
     total = calculate_total(items)
+    totals_by_currency: dict = {}
     for item in items:
+        curr = item.get("currency", "USD")
+        if item.get("value") is not None:
+            totals_by_currency[curr] = totals_by_currency.get(curr, 0) + item["value"]
         item["pct"] = round(item["value"] / total * 100, 1) if total and item["value"] is not None else 0
-    return items, total, error
+    return items, total, totals_by_currency, error
 
 
 @router.get("/portfolio", response_class=HTMLResponse)
 async def portfolio(request: Request, user: User = Depends(get_current_user)):
-    items, total, error = await _build_portfolio_data()
+    items, total, totals_by_currency, error = await _build_portfolio_data()
     return templates.TemplateResponse("portfolio.html", {
         "request": request, "user": user, "items": items,
-        "total": total, "error": error, "active": "portfolio"
+        "total": total, "totals_by_currency": totals_by_currency,
+        "error": error, "active": "portfolio"
     })
 
 
 @router.get("/portfolio/partial", response_class=HTMLResponse)
 async def portfolio_partial(request: Request, user: User = Depends(get_current_user)):
-    items, total, _ = await _build_portfolio_data()
+    items, total, totals_by_currency, _ = await _build_portfolio_data()
     return templates.TemplateResponse("partials/portfolio_rows.html",
-                                      {"request": request, "items": items, "total": total})
+                                      {"request": request, "items": items, "total": total,
+                                       "totals_by_currency": totals_by_currency})
