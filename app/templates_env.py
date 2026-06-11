@@ -14,7 +14,7 @@ def _arg_fmt(value, decimals: int) -> str:
 
 
 def _arg_price(value, currency: str = "USD") -> str:
-    return _arg_fmt(value, 0 if currency == "ARS" else 2)
+    return _arg_fmt(value, 2)
 
 
 def _arg_dec(value, decimals: int = 2) -> str:
