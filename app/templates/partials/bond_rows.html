@@ -29,7 +29,7 @@
   <th class="num">Vencimiento</th>
 </tr>
 {% endif %}
-<tr onclick="window.location='/market/{{ b.ticker | urlencode }}'">
+<tr style="height:52px" onclick="window.location='/market/{{ b.ticker | urlencode }}'">
   <td style="width:32px;padding-left:8px">
     <button class="star-btn{% if is_fav %} starred{% endif %}"
             hx-post="/market/favorite/{{ b.ticker }}"
