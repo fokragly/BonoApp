@@ -62,8 +62,8 @@ function initFavSortable() {
   if (tbody._sortable) tbody._sortable.destroy();
   tbody._sortable = new Sortable(tbody, {
     handle: '.drag-handle',
+    draggable: 'tr[data-fav-ticker]',
     animation: 150,
-    filter: ':not([data-fav-ticker])',
     onEnd() {
       const tickers = Array.from(tbody.querySelectorAll('tr[data-fav-ticker]'))
         .map(r => r.dataset.favTicker);
