@@ -173,15 +173,17 @@ def get_snapshot_entries(snapshot_id: str) -> list[SnapshotEntry]:
 
 # --- Favorites ---
 
-def get_user_favorites(user_id: int) -> set:
+def get_user_favorites(user_id: int) -> list:
+    """Returns tickers ordered by position."""
     conn = get_conn()
     try:
         rows = conn.execute(
-            "SELECT ticker FROM favorites WHERE user_id = ?", (user_id,)
+            "SELECT ticker FROM favorites WHERE user_id = ? ORDER BY position ASC, ticker ASC",
+            (user_id,)
         ).fetchall()
     finally:
         conn.close()
-    return {r["ticker"] for r in rows}
+    return [r["ticker"] for r in rows]
 
 
 def toggle_favorite(user_id: int, ticker: str) -> bool:
@@ -197,11 +199,28 @@ def toggle_favorite(user_id: int, ticker: str) -> bool:
             conn.commit()
             return False
         else:
+            max_pos = conn.execute(
+                "SELECT COALESCE(MAX(position), -1) FROM favorites WHERE user_id = ?", (user_id,)
+            ).fetchone()[0]
             conn.execute(
-                "INSERT INTO favorites (user_id, ticker) VALUES (?, ?)", (user_id, ticker)
+                "INSERT INTO favorites (user_id, ticker, position) VALUES (?, ?, ?)",
+                (user_id, ticker, max_pos + 1)
             )
             conn.commit()
             return True
+    finally:
+        conn.close()
+
+
+def reorder_favorites(user_id: int, tickers: list[str]) -> None:
+    conn = get_conn()
+    try:
+        for i, ticker in enumerate(tickers):
+            conn.execute(
+                "UPDATE favorites SET position = ? WHERE user_id = ? AND ticker = ?",
+                (i, user_id, ticker)
+            )
+        conn.commit()
     finally:
         conn.close()
 

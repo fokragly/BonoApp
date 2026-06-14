@@ -30,8 +30,10 @@
   <th class="num">Vencimiento</th>
 </tr>
 {% endif %}
-<tr style="height:52px" onclick="window.location='/market/{{ b.ticker | urlencode }}'">
-  <td style="width:32px;padding-left:8px">
+<tr style="height:52px" onclick="window.location='/market/{{ b.ticker | urlencode }}'"
+    {% if is_fav %}data-fav-ticker="{{ b.ticker }}"{% endif %}>
+  <td style="width:32px;padding-left:8px;display:flex;align-items:center;gap:4px">
+    {% if is_fav %}<span class="drag-handle" onclick="event.stopPropagation()" title="Arrastrar para reordenar" style="cursor:grab;color:var(--text-muted);font-size:14px;line-height:1;user-select:none">⠿</span>{% endif %}
     <button class="star-btn{% if is_fav %} starred{% endif %}"
             hx-post="/market/favorite/{{ b.ticker }}"
             hx-swap="outerHTML"

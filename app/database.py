@@ -52,6 +52,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS favorites (
                 user_id INTEGER NOT NULL,
                 ticker TEXT NOT NULL,
+                position INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY (user_id, ticker),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
@@ -63,6 +64,11 @@ def init_db():
             conn.commit()
         if "buy_date" not in cols:
             conn.execute("ALTER TABLE holdings ADD COLUMN buy_date TEXT")
+            conn.commit()
+        # Migrate: add position to favorites if missing
+        fav_cols = [r[1] for r in conn.execute("PRAGMA table_info(favorites)").fetchall()]
+        if "position" not in fav_cols:
+            conn.execute("ALTER TABLE favorites ADD COLUMN position INTEGER NOT NULL DEFAULT 0")
             conn.commit()
         # Create default admin user if none exists
         from app.auth import hash_password

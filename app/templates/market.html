@@ -50,4 +50,32 @@
     </tbody>
   </table>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+function initFavSortable() {
+  const tbody = document.getElementById('bond-tbody');
+  if (!tbody) return;
+  const favRows = Array.from(tbody.querySelectorAll('tr[data-fav-ticker]'));
+  if (favRows.length < 2) return;
+
+  if (tbody._sortable) tbody._sortable.destroy();
+  tbody._sortable = new Sortable(tbody, {
+    handle: '.drag-handle',
+    animation: 150,
+    filter: ':not([data-fav-ticker])',
+    onEnd() {
+      const tickers = Array.from(tbody.querySelectorAll('tr[data-fav-ticker]'))
+        .map(r => r.dataset.favTicker);
+      fetch('/market/favorites/reorder', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({tickers})
+      });
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', initFavSortable);
+document.addEventListener('htmx:afterSwap', initFavSortable);
+</script>
 {% endblock %}
